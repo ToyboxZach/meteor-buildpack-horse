@@ -8,6 +8,8 @@
 set -e
 # debug verbosely.
 #set -x
+#
+date +"%Y-%m-%dT%H:%M:%S%z"
 
 get_node_major_version() {
   local node_version=`METEOR node --version`
@@ -108,6 +110,7 @@ if [ -n "$BUILDPACK_CLEAR_CACHE" ]; then
   rm -rf "$CACHE_DIR/*"
 fi
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 #
 # Find the meteor app ($APP_SOURCE_DIR).
 #
@@ -120,6 +123,7 @@ if [ -n "$METEOR_APP_DIR" ]; then
   APP_SOURCE_DIR="${APP_SOURCE_DIR}/${METEOR_APP_DIR}"
 fi
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 # Try "$APP_SOURCE_DIR/app/" if meteor app isn't there (the "Iron scaffolding
 # tool" default).
 if [ ! -d "$APP_SOURCE_DIR/.meteor" ] && [ -d "$APP_SOURCE_DIR/app/.meteor" ]; then
@@ -130,6 +134,7 @@ if [ ! -d "$APP_SOURCE_DIR/.meteor" ]; then
   exit 1
 fi
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 # Where we will install meteor. Has to be outside the APP_CHECKOUT_DIR.
 METEOR_DIR="$CACHE_DIR/meteor"
 # Where we'll put things we compile.
@@ -146,6 +151,7 @@ mkdir -p "$COMPILE_DIR" "$COMPILE_DIR/bin" "$COMPILE_DIR/lib"
 
 cp "$BUILDPACK_DIR/lib/start.sh" "$COMPILE_DIR/start.sh"
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 # Set a default ROOT_URL if one is not defined. Currently, HEROKU_APP_NAME is
 # only available if you enable the labs addon "Heroku Dyno Metadata":
 # https://devcenter.heroku.com/articles/dyno-metadata
@@ -177,6 +183,7 @@ function METEOR {
   HOME="$METEOR_DIR" TOOL_NODE_FLAGS="--max-old-space-size=4096" "$METEOR_DIR/.meteor/meteor" $ARGS 
 }
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 #
 # Build the meteor app!
 #
@@ -208,6 +215,7 @@ if [ -z "$SERVER_ONLY_FLAG" ]; then
   echo "-----> Moving on."
 fi
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 # Identify the npm/node to use. We need to copy the node binary out to get the
 # correct version in the built slug (e.g. 0.10.x for Meteor<1.4, 4.x for
 # Meteor>=1.4).  We can't copy the whole meteor world because that's too large
@@ -231,8 +239,10 @@ NODE="$COMPILE_DIR"/bin/node
 cp "$METEOR_NODE" "$NODE"
 chmod a+x "$NODE"
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 install_plugin "$BUILDPACK_DIR" "$COMPILE_DIR"
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 # Add npm and node path so that 1.4's npm-rebuild.js will function.
 PATH="$METEOR_DIR/.meteor:`dirname $METEOR_NPM`:$COMPILE_DIR/bin:$PATH"
 
@@ -244,6 +254,7 @@ if [ -e "$APP_SOURCE_DIR"/heroku-preinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-preinstall.sh
 fi
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 
 
 # If we use npm on root, run npm install.  Don't use `--production` here, as we
@@ -254,6 +265,7 @@ if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   $METEOR_NPM install  --omit=optional --no-optional
 fi
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 
 # Related to https://github.com/meteor/meteor/issues/2796 and
 # https://github.com/meteor/meteor/issues/2606.  Some packages only build their
@@ -267,12 +279,14 @@ if [ -n "$BUILDPACK_PRELAUNCH_METEOR" ]; then
   HOME=$METEOR_DIR timeout -s9 60 $METEOR_DIR/.meteor/meteor --settings settings.json || true
 fi
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 # Now on to bundling. Don't put the bundle in $APP_CHECKOUT_DIR during
 # bundling, or it will recurse, trying to bundle up its own bundling.
 
 echo "-----> Building Meteor app with ROOT_URL: $ROOT_URL"
 BUNDLE_DEST=`mktemp -d "$BUILDPACK_DIR/build-XXXX"`
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 # The actual invocation of `meteor build`!
 METEOR build $BUILD_OPTIONS --server $ROOT_URL $SERVER_ONLY_FLAG --directory $BUNDLE_DEST
 
@@ -280,6 +294,7 @@ echo "-----> Moving built slug to $COMPILE_DIR/app"
 mv $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
 rmdir $BUNDLE_DEST
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 # Run npm install on the built slug; only for '--production' dependencies.	
 echo "-----> Installing npm production dependencies on built slug"	
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then	
@@ -288,6 +303,7 @@ if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then
   cd "$APP_SOURCE_DIR"	
 fi	
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 #
 # Environment
 #
@@ -300,6 +316,7 @@ cat > "$APP_CHECKOUT_DIR"/.profile.d/path.sh <<EOF
   export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$HOME/$COMPILE_DIR_SUFFIX/lib
 EOF
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 #
 # Extras
 #
@@ -311,6 +328,7 @@ for file in `ls "$BUILDPACK_DIR"/extra | sort`; do
   . "$BUILDPACK_DIR"/extra/$file
 done
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 rm -rf "$APP_SOURCE_DIR"/node_modules
 
 #
@@ -321,12 +339,16 @@ if [ -n "$BUILDPACK_CLEAR_CACHE" ]; then
   rm -rf $METEOR_DIR
 fi
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 #Node metrics needs node to be in a specific place
 mkdir -p $APP_CHECKOUT_DIR/.heroku/node/bin
 cp $APP_CHECKOUT_DIR/.meteor/heroku_build/bin/node  $APP_CHECKOUT_DIR/.heroku/node/bin
 
+date +"%Y-%m-%dT%H:%M:%S%z"
 
 # Run cleanup
 if [ -e "$APP_SOURCE_DIR"/heroku-postinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-postinstall.sh
 fi
+
+date +"%Y-%m-%dT%H:%M:%S%z"
