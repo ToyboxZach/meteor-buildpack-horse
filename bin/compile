@@ -288,7 +288,7 @@ BUNDLE_DEST=`mktemp -d "$BUILDPACK_DIR/build-XXXX"`
 
 date +"%Y-%m-%dT%H:%M:%S%z"
 echo "-----> installing jsdom?"
-  $METEOR_NPM npm install --save jsdom
+  $METEOR_NPM install --save jsdom
   date +"%Y-%m-%dT%H:%M:%S%z"
 
 
