@@ -250,6 +250,7 @@ fi
 # may need devDependencies (e.g. webpack) in order to build the meteor app.
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
+sed -i 's/"redis-memory-server": ".*",//' "$APP_SOURCE_DIR"/package.json
   $METEOR_NPM install
 fi
 
@@ -283,6 +284,7 @@ rmdir $BUNDLE_DEST
 echo "-----> Installing npm production dependencies on built slug"	
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then	
   cd "$COMPILE_DIR"/app/programs/server	
+sed -i 's/"redis-memory-server": ".*",//' package.json
   $METEOR_NPM install --production	
   cd "$APP_SOURCE_DIR"	
 fi	
