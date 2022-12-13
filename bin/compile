@@ -287,6 +287,10 @@ echo "-----> Building Meteor app with ROOT_URL: $ROOT_URL"
 BUNDLE_DEST=`mktemp -d "$BUILDPACK_DIR/build-XXXX"`
 
 date +"%Y-%m-%dT%H:%M:%S%z"
+echo "-----> installing jsdom?"
+  $METEOR_NPM npm install --save jsdom
+  date +"%Y-%m-%dT%H:%M:%S%z"
+
 
 # The actual invocation of `meteor build`!
 METEOR build $BUILD_OPTIONS --server $ROOT_URL $SERVER_ONLY_FLAG --directory $BUNDLE_DEST
@@ -300,10 +304,6 @@ date +"%Y-%m-%dT%H:%M:%S%z"
 echo "-----> Installing npm production dependencies on built slug"	
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then	
   cd "$COMPILE_DIR"/app/programs/server
-
-  echo "-----> installing jsdom?"
-  $METEOR_NPM npm install --save jsdom
-  date +"%Y-%m-%dT%H:%M:%S%z"
 
   $METEOR_NPM install --production	--omit=optional --no-optional
   cd "$APP_SOURCE_DIR"	
