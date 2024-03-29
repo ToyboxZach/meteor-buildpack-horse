@@ -46,17 +46,20 @@ download() {
         exit 1
     fi
 }
+
 download_assets_for_release() {
     local tag=${1}
     local dir=${2}
-    local version="14" 
+    local version="20" 
     # ${3}
-    download "https://github.com/heroku/heroku-nodejs-plugin/releases/download/v12/heroku-nodejs-plugin-node-14-v12.sha512" "$dir/heroku-nodejs-plugin-node-$version.sha512"
-    download "https://github.com/heroku/heroku-nodejs-plugin/releases/download/v12/heroku-nodejs-plugin-node-14-v12.tar.gz" "$dir/heroku-nodejs-plugin-node-$version.tar.gz"
+
+    download "https://github.com/heroku/heroku-buildpack-nodejs/raw/main/plugin/heroku-nodejs-plugin-node-20.sha512" "$dir/heroku-nodejs-plugin-node-$version.sha512"
+    download "https://github.com/heroku/heroku-buildpack-nodejs/raw/main/plugin/heroku-nodejs-plugin-node-20.tar.gz" "$dir/heroku-nodejs-plugin-node-$version.tar.gz"
    # download "https://github.com/heroku/heroku-nodejs-plugin/releases/download/$tag/heroku-nodejs-plugin-node-$version-$tag.sha512" "$dir/heroku-nodejs-plugin-node-$version.sha512"
  #   download "https://github.com/heroku/heroku-nodejs-plugin/releases/download/$tag/heroku-nodejs-plugin-node-$version-$tag.tar.gz" "$dir/heroku-nodejs-plugin-node-$version.tar.gz"
     test_hash $version $dir
 }
+
 download_plugin() {
   local tag_name=$(get_latest_release)
   download_assets_for_release $tag_name $1 $2
@@ -171,7 +174,7 @@ if [ -e "$METEOR_DIR/.meteor/meteor" ]; then
   echo "-----> Existing meteor installation found, using it."
 else
   echo "-----> Installing meteor"
-  curl -sS "https://install.meteor.com/" | HOME="$METEOR_DIR" /bin/sh
+  curl -sS "https://install.meteor.com/\?release\=3.0-beta.7" | HOME="$METEOR_DIR" /bin/sh
 fi
 # Function to execute meteor with proper HOME.
 function METEOR {
@@ -222,7 +225,6 @@ METEOR_NODE=`METEOR node -e "process.stdout.write(process.execPath)"`
 METEOR_NODE_VERSION=`METEOR node --version | cut -d'v' -f 2`
 # Assume npm is in the same dir as node.
 METEOR_NPM="`dirname "$METEOR_NODE"`/npm"
-
 if [ -z "$METEOR_NPM" ] || [ -z "$METEOR_NODE" ] ; then
   echo "FATAL: Can't find npm/node within meteor bundle. This is a bug. Please open an issue at https://github.com/AdmitHub/meteor-buildpack-horse.";
   exit 1
