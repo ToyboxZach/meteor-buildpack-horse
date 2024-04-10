@@ -252,6 +252,8 @@ fi
 # may need devDependencies (e.g. webpack) in order to build the meteor app.
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
+  ls  
+  ls ./tools
   echo "---> install  --omit=optional --no-optional"
   $METEOR_NPM install  --omit=optional --no-optional
 fi
