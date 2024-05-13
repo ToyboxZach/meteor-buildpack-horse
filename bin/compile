@@ -287,13 +287,10 @@ rmdir $BUNDLE_DEST
 
 # Run npm install on the built slug; only for '--production' dependencies.	
 echo "-----> Installing npm production dependencies on built slug"	
-if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then	
-  cd "$COMPILE_DIR"/app/programs/server	
-  ls	
-  rm npm-shrinkwrap.json
-  $METEOR_NPM install --production	--omit=optional --no-optional
-  cd "$APP_SOURCE_DIR"	
-fi	
+#if [ -e "$COMPILE_DIR"/app/programs/server/npm ]; then	
+#  $METEOR_NPM install --production	--omit=optional --no-optional --prefix "$COMPILE_DIR"/app/programs/server/npm
+#  cd "$APP_SOURCE_DIR"	
+#fi	
 
 #
 # Environment
