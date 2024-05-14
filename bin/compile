@@ -249,7 +249,7 @@ if [ -e "$APP_SOURCE_DIR"/heroku-preinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-preinstall.sh
 fi
 if [ -e "$CACHE_DIR"/node_modules ]; then
-  cp "$CACHE_DIR/node_modules" ./node_modules
+  cp -r "$CACHE_DIR/node_modules" ./node_modules
 fi
 
 # If we use npm on root, run npm install.  Don't use `--production` here, as we
@@ -259,7 +259,7 @@ if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   $METEOR_NPM install 
 fi
 
-cp ./node_modules "$CACHE_DIR/node_modules"
+cp -r ./node_modules "$CACHE_DIR/node_modules"
 
 # Now on to bundling. Don't put the bundle in $APP_CHECKOUT_DIR during
 # bundling, or it will recurse, trying to bundle up its own bundling.
