@@ -284,7 +284,6 @@ if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then
   # SPecial case remove react-native, as we definitely don't need it 
   rm -rf ./npm/node_modules/react-native
   rm -rf ./npm/node_modules/jsc-android
-  rm -rf ./npm/node_modules/@babel
   $METEOR_NPM install --production	--omit=optional --no-optional
   cd "$APP_SOURCE_DIR"	
 fi	
