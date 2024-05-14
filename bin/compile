@@ -260,18 +260,6 @@ if [ -e "$APP_SOURCE_DIR"/package.json ]; then
 fi
 
 
-# Related to https://github.com/meteor/meteor/issues/2796 and
-# https://github.com/meteor/meteor/issues/2606.  Some packages only build their
-# assets at runtime, and thus they are not available for bundling unless meteor
-# has been launched.  To opt-in to this, set BUILDPACK_PRELAUNCH_METEOR=1.
-if [ -n "$BUILDPACK_PRELAUNCH_METEOR" ]; then
-  echo "-----> BUILDPACK_PRELAUNCH_METEOR: Pre-launching meteor to build packages assets"
-  # Remove the Android platform because it fails due to the Android tools not
-  # being installed, but leave the iOS platform because it's ignored.
-  METEOR remove-platform android || true
-  HOME=$METEOR_DIR timeout -s9 60 $METEOR_DIR/.meteor/meteor --settings settings.json || true
-fi
-
 # Now on to bundling. Don't put the bundle in $APP_CHECKOUT_DIR during
 # bundling, or it will recurse, trying to bundle up its own bundling.
 
@@ -293,6 +281,8 @@ if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then
   rm npm-shrinkwrap.json
   # SPecial case remove react-native, as we definitely don't need it 
   rm -rf ./npm/node_modules/react-native
+  rm -rf ./npm/node_modules/jsc-android
+  rm -rf ./npm/node_modules/@babel
   $METEOR_NPM install --production	--omit=optional --no-optional
   cd "$APP_SOURCE_DIR"	
 fi	
@@ -342,4 +332,6 @@ if [ -e "$APP_SOURCE_DIR"/heroku-postinstall.sh ]; then
 fi
 
 rm -rf "$APP_SOURCE_DIR"/*
+rm -rf "$APP_SOURCE_DIR"/.meteor/local/plugin-cache
+rm -rf "$APP_SOURCE_DIR"/.meteor/local/bundler-cache
 
