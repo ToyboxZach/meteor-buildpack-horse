@@ -248,8 +248,9 @@ echo "----->    and npm: `$METEOR_NPM --version`"
 if [ -e "$APP_SOURCE_DIR"/heroku-preinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-preinstall.sh
 fi
-
-cp "$CACHE_DIR/node_modules" ./node_modules
+if [ -e "$CACHE_DIR"/node_modules ]
+  cp "$CACHE_DIR/node_modules" ./node_modules
+fi
 
 # If we use npm on root, run npm install.  Don't use `--production` here, as we
 # may need devDependencies (e.g. webpack) in order to build the meteor app.
