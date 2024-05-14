@@ -333,10 +333,13 @@ fi
 
 #Node metrics needs node to be in a specific place
 mkdir -p $APP_CHECKOUT_DIR/.heroku/node/bin
-cp $APP_CHECKOUT_DIR/.meteor/heroku_build/bin/node  $APP_CHECKOUT_DIR/.heroku/node/bin
+ln -s $APP_CHECKOUT_DIR/.meteor/heroku_build/bin/node  $APP_CHECKOUT_DIR/.heroku/node/bin
 
 
 # Run cleanup
 if [ -e "$APP_SOURCE_DIR"/heroku-postinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-postinstall.sh
 fi
+
+rm -rf "$APP_SOURCE_DIR"/*
+
