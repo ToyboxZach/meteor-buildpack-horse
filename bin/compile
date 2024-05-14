@@ -275,11 +275,11 @@ mv $BUNDLE_DEST/bundle "$COMPILE_DIR/app"
 rmdir $BUNDLE_DEST
 
 # Run npm install on the built slug; only for '--production' dependencies.	
-echo "-----> Installing npm production dependencies on built slug"	
-if [ -e "$COMPILE_DIR"/app/programs/server/npm ]; then	
-  $METEOR_NPM install --production	--omit=optional --no-optional --prefix "$COMPILE_DIR"/app/programs/server/npm
-  cd "$APP_SOURCE_DIR"	
-fi	
+#echo "-----> Installing npm production dependencies on built slug"	
+#if [ -e "$COMPILE_DIR"/app/programs/server/npm ]; then	
+#  $METEOR_NPM install --production	--omit=optional --no-optional --prefix "$COMPILE_DIR"/app/programs/server/npm
+#  cd "$APP_SOURCE_DIR"	
+#fi	
 
 #
 # Environment
