@@ -323,7 +323,7 @@ fi
 
 #Node metrics needs node to be in a specific place
 mkdir -p $APP_CHECKOUT_DIR/.heroku/node/bin
-ln -s $APP_CHECKOUT_DIR/.meteor/heroku_build/bin/node  $APP_CHECKOUT_DIR/.heroku/node/bin
+
 
 
 # Run cleanup
