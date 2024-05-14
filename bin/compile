@@ -248,7 +248,7 @@ echo "----->    and npm: `$METEOR_NPM --version`"
 if [ -e "$APP_SOURCE_DIR"/heroku-preinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-preinstall.sh
 fi
-if [ -e "$CACHE_DIR"/node_modules ]
+if [ -e "$CACHE_DIR"/node_modules ]; then
   cp "$CACHE_DIR/node_modules" ./node_modules
 fi
 
