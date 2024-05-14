@@ -249,28 +249,16 @@ if [ -e "$APP_SOURCE_DIR"/heroku-preinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-preinstall.sh
 fi
 
-
+cp "$CACHE_DIR/node_modules" ./node_modules
 
 # If we use npm on root, run npm install.  Don't use `--production` here, as we
 # may need devDependencies (e.g. webpack) in order to build the meteor app.
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
-  echo "---> install  --omit=optional --no-optional"
-  $METEOR_NPM install  --omit=optional --no-optional
+  $METEOR_NPM install 
 fi
 
-
-# Related to https://github.com/meteor/meteor/issues/2796 and
-# https://github.com/meteor/meteor/issues/2606.  Some packages only build their
-# assets at runtime, and thus they are not available for bundling unless meteor
-# has been launched.  To opt-in to this, set BUILDPACK_PRELAUNCH_METEOR=1.
-if [ -n "$BUILDPACK_PRELAUNCH_METEOR" ]; then
-  echo "-----> BUILDPACK_PRELAUNCH_METEOR: Pre-launching meteor to build packages assets"
-  # Remove the Android platform because it fails due to the Android tools not
-  # being installed, but leave the iOS platform because it's ignored.
-  METEOR remove-platform android || true
-  HOME=$METEOR_DIR timeout -s9 60 $METEOR_DIR/.meteor/meteor --settings settings.json || true
-fi
+cp ./node_modules "$CACHE_DIR/node_modules"
 
 # Now on to bundling. Don't put the bundle in $APP_CHECKOUT_DIR during
 # bundling, or it will recurse, trying to bundle up its own bundling.
@@ -287,10 +275,10 @@ rmdir $BUNDLE_DEST
 
 # Run npm install on the built slug; only for '--production' dependencies.	
 echo "-----> Installing npm production dependencies on built slug"	
-#if [ -e "$COMPILE_DIR"/app/programs/server/npm ]; then	
-#  $METEOR_NPM install --production	--omit=optional --no-optional --prefix "$COMPILE_DIR"/app/programs/server/npm
-#  cd "$APP_SOURCE_DIR"	
-#fi	
+if [ -e "$COMPILE_DIR"/app/programs/server/npm ]; then	
+  $METEOR_NPM install --production	--omit=optional --no-optional --prefix "$COMPILE_DIR"/app/programs/server/npm
+  cd "$APP_SOURCE_DIR"	
+fi	
 
 #
 # Environment
@@ -315,8 +303,6 @@ for file in `ls "$BUILDPACK_DIR"/extra | sort`; do
   . "$BUILDPACK_DIR"/extra/$file
 done
 
-rm -rf "$APP_SOURCE_DIR"/node_modules
-
 #
 # Clear cache after build is done
 #
@@ -330,7 +316,15 @@ mkdir -p $APP_CHECKOUT_DIR/.heroku/node/bin
 cp $APP_CHECKOUT_DIR/.meteor/heroku_build/bin/node  $APP_CHECKOUT_DIR/.heroku/node/bin
 
 
+
+
 # Run cleanup
 if [ -e "$APP_SOURCE_DIR"/heroku-postinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-postinstall.sh
 fi
+
+rm -rf "$APP_SOURCE_DIR"/node_modules
+rm -rf "$APP_SOURCE_DIR"/common
+rm -rf "$APP_SOURCE_DIR"/imports
+rm -rf "$APP_SOURCE_DIR"/server
+rm -rf "$APP_SOURCE_DIR"/client
