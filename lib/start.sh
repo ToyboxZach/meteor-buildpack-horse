@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export NODE_ENV=${NODE_ENV:-production}
-ln -s $HOME/.meteor/heroku_build/bin/node  $HOME/.heroku/node/bin
+cp $HOME/.meteor/heroku_build/bin/node  $HOME/.heroku/node/bin
 # If the metrics url is not present, this is the wrong type of dyno, or the user has opted out,
 # don't include the metrics plugin
 if [[ -n "$HEROKU_METRICS_URL" ]] && [[ "${DYNO}" != run\.* ]] && [[ -z "$HEROKU_SKIP_NODE_PLUGIN" ]]; then
