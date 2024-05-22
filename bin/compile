@@ -255,7 +255,7 @@ fi
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   echo "---> install  --omit=optional --no-optional"
-  "$METEOR_NPM" install  --omit=optional --no-optional
+  "$METEOR_NPM" install  --omit=optional --no-optional --force
 fi
 
 
@@ -288,7 +288,7 @@ rmdir $BUNDLE_DEST
 echo "-----> Installing npm production dependencies on built slug"	
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then	
   cd "$COMPILE_DIR"/app/programs/server	
-  "$METEOR_NPM" install --production	--omit=optional --no-optional
+  "$METEOR_NPM" install --production	--omit=optional --no-optional  --force
   cd "$APP_SOURCE_DIR"	
 fi	
 
