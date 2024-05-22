@@ -223,6 +223,7 @@ fi
 # release predates that feature.
 METEOR_NODE=`METEOR node -e "process.stdout.write(process.execPath)"`
 METEOR_NODE_VERSION=`METEOR node --version | cut -d'v' -f 2`
+METEOR_NPM="`dirname "$METEOR_NODE"`/npm"
 # Assume npm is in the same dir as node.
 
 if [ -z "$METEOR_NODE" ] ; then
@@ -254,7 +255,7 @@ fi
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   echo "---> install  --omit=optional --no-optional"
-  npm install  --omit=optional --no-optional
+  "$METEOR_NPM" install  --omit=optional --no-optional
 fi
 
 
@@ -287,7 +288,7 @@ rmdir $BUNDLE_DEST
 echo "-----> Installing npm production dependencies on built slug"	
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then	
   cd "$COMPILE_DIR"/app/programs/server	
-  npm install --production	--omit=optional --no-optional
+  "$METEOR_NPM" install --production	--omit=optional --no-optional
   cd "$APP_SOURCE_DIR"	
 fi	
 
