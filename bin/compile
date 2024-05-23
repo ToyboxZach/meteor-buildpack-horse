@@ -255,7 +255,7 @@ fi
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   echo "---> install  --omit=optional --no-optional"
-  "$METEOR_NPM" install  --omit=optional --no-optional --force
+  "$METEOR_NPM" install --force
 fi
 
 
