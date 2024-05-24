@@ -46,12 +46,12 @@ download() {
         exit 1
     fi
 }
+
 download_assets_for_release() {
     local tag=${1}
     local dir=${2}
     local version="20" 
     # ${3}
-
 
     download "https://github.com/heroku/heroku-buildpack-nodejs/raw/main/plugin/heroku-nodejs-plugin-node-20.sha512" "$dir/heroku-nodejs-plugin-node-$version.sha512"
     download "https://github.com/heroku/heroku-buildpack-nodejs/raw/main/plugin/heroku-nodejs-plugin-node-20.tar.gz" "$dir/heroku-nodejs-plugin-node-$version.tar.gz"
@@ -60,6 +60,7 @@ download_assets_for_release() {
  #   download "https://github.com/heroku/heroku-nodejs-plugin/releases/download/$tag/heroku-nodejs-plugin-node-$version-$tag.tar.gz" "$dir/heroku-nodejs-plugin-node-$version.tar.gz"
     test_hash $version $dir
 }
+
 download_plugin() {
   local tag_name=$(get_latest_release)
   download_assets_for_release $tag_name $1 $2
@@ -170,11 +171,12 @@ fi
 
 # Install the latest meteor, and rely on meteor to upgrade/downgrade itself to
 # the .meteor/release target.
-if [ -e "$METEOR_DIR/.meteor/meteor" ]; then
+if [ -e "$METEOR_DIR/.meteor/meteor_3" ]; then
   echo "-----> Existing meteor installation found, using it."
 else
   echo "-----> Installing meteor"
-  curl -sS "https://install.meteor.com/" | HOME="$METEOR_DIR" /bin/sh
+  curl -sS "https://install.meteor.com/\?release\=3.0-rc.1" | HOME="$METEOR_DIR" /bin/sh
+  touch "$METEOR_DIR/.meteor/meteor_3"
 fi
 # Function to execute meteor with proper HOME.
 function METEOR {
@@ -225,8 +227,9 @@ METEOR_NODE=`METEOR node -e "process.stdout.write(process.execPath)"`
 METEOR_NODE_VERSION=`METEOR node --version | cut -d'v' -f 2`
 METEOR_NPM="`dirname "$METEOR_NODE"`/npm"
 # Assume npm is in the same dir as node.
+METEOR_NPM="`dirname "$METEOR_NODE"`/npm"
+if [ -z "$METEOR_NPM" ] || [ -z "$METEOR_NODE" ] ; then
 
-if [ -z "$METEOR_NODE" ] ; then
   echo "FATAL: Can't find npm/node within meteor bundle. This is a bug. Please open an issue at https://github.com/AdmitHub/meteor-buildpack-horse.";
   exit 1
 fi
@@ -239,7 +242,7 @@ chmod a+x "$NODE"
 install_plugin "$BUILDPACK_DIR" "$COMPILE_DIR"
 
 # Add npm and node path so that 1.4's npm-rebuild.js will function.
-PATH="$METEOR_DIR/.meteor:$COMPILE_DIR/bin:$PATH"
+PATH="$METEOR_DIR/.meteor:`dirname $METEOR_NPM`:$COMPILE_DIR/bin:$PATH"
 
 echo "-----> Using node: `$NODE --version`"
 
@@ -248,28 +251,18 @@ if [ -e "$APP_SOURCE_DIR"/heroku-preinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-preinstall.sh
 fi
 
-
+if [ -e "$CACHE_DIR"/node_modules ]; then
+ cp -r "$CACHE_DIR"/node_modules "APP_SOURCE_DIR"/
+fi
 
 # If we use npm on root, run npm install.  Don't use `--production` here, as we
 # may need devDependencies (e.g. webpack) in order to build the meteor app.
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   echo "---> install   --legacy-peer-deps"
-  "$METEOR_NPM" install --legacy-peer-deps
+  $METEOR_NPM install  --production --legacy-peer-deps
 fi
 
-
-# Related to https://github.com/meteor/meteor/issues/2796 and
-# https://github.com/meteor/meteor/issues/2606.  Some packages only build their
-# assets at runtime, and thus they are not available for bundling unless meteor
-# has been launched.  To opt-in to this, set BUILDPACK_PRELAUNCH_METEOR=1.
-if [ -n "$BUILDPACK_PRELAUNCH_METEOR" ]; then
-  echo "-----> BUILDPACK_PRELAUNCH_METEOR: Pre-launching meteor to build packages assets"
-  # Remove the Android platform because it fails due to the Android tools not
-  # being installed, but leave the iOS platform because it's ignored.
-  METEOR remove-platform android || true
-  HOME=$METEOR_DIR timeout -s9 60 $METEOR_DIR/.meteor/meteor --settings settings.json || true
-fi
 
 # Now on to bundling. Don't put the bundle in $APP_CHECKOUT_DIR during
 # bundling, or it will recurse, trying to bundle up its own bundling.
@@ -288,7 +281,13 @@ rmdir $BUNDLE_DEST
 echo "-----> Installing npm production dependencies on built slug"	
 if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then	
   cd "$COMPILE_DIR"/app/programs/server	
-  "$METEOR_NPM" install --production	--omit=optional --no-optional  --legacy-peer-deps
+
+  rm npm-shrinkwrap.json
+  # SPecial case remove react-native, as we definitely don't need it 
+  rm -rf ./npm/node_modules/react-native
+  rm -rf ./npm/node_modules/jsc-android
+  $METEOR_NPM install --production	--omit=optional --no-optional  --legacy-peer-deps
+
   cd "$APP_SOURCE_DIR"	
 fi	
 
@@ -314,9 +313,8 @@ echo "-----> Running extras"
 for file in `ls "$BUILDPACK_DIR"/extra | sort`; do
   . "$BUILDPACK_DIR"/extra/$file
 done
-
-rm -rf "$APP_SOURCE_DIR"/node_modules
-
+cp -r ./node_modules "$CACHE_DIR"/
+rm -rf *
 #
 # Clear cache after build is done
 #
@@ -327,10 +325,15 @@ fi
 
 #Node metrics needs node to be in a specific place
 mkdir -p $APP_CHECKOUT_DIR/.heroku/node/bin
-cp $APP_CHECKOUT_DIR/.meteor/heroku_build/bin/node  $APP_CHECKOUT_DIR/.heroku/node/bin
+
 
 
 # Run cleanup
 if [ -e "$APP_SOURCE_DIR"/heroku-postinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-postinstall.sh
 fi
+
+rm -rf "$APP_SOURCE_DIR"/*
+rm -rf "$APP_SOURCE_DIR"/.meteor/local/plugin-cache
+rm -rf "$APP_SOURCE_DIR"/.meteor/local/bundler-cache
+
