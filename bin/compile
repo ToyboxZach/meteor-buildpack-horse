@@ -225,6 +225,7 @@ fi
 # release predates that feature.
 METEOR_NODE=`METEOR node -e "process.stdout.write(process.execPath)"`
 METEOR_NODE_VERSION=`METEOR node --version | cut -d'v' -f 2`
+METEOR_NPM="`dirname "$METEOR_NODE"`/npm"
 # Assume npm is in the same dir as node.
 METEOR_NPM="`dirname "$METEOR_NODE"`/npm"
 if [ -z "$METEOR_NPM" ] || [ -z "$METEOR_NODE" ] ; then
@@ -244,7 +245,6 @@ install_plugin "$BUILDPACK_DIR" "$COMPILE_DIR"
 PATH="$METEOR_DIR/.meteor:`dirname $METEOR_NPM`:$COMPILE_DIR/bin:$PATH"
 
 echo "-----> Using node: `$NODE --version`"
-echo "----->    and npm: `$METEOR_NPM --version`"
 
 # Run prebuild step
 if [ -e "$APP_SOURCE_DIR"/heroku-preinstall.sh ]; then
@@ -259,7 +259,10 @@ fi
 # may need devDependencies (e.g. webpack) in order to build the meteor app.
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
-  echo "---> install  --omit=optional --no-optional"
+
+  echo "---> install   --legacy-peer-deps"
+  "$METEOR_NPM" install --legacy-peer-deps
+fi
 
   $METEOR_NPM install  --production
 
@@ -288,7 +291,7 @@ if [ -e "$COMPILE_DIR"/app/programs/server/package.json ]; then
   # SPecial case remove react-native, as we definitely don't need it 
   rm -rf ./npm/node_modules/react-native
   rm -rf ./npm/node_modules/jsc-android
-  $METEOR_NPM install --production	--omit=optional --no-optional
+  $METEOR_NPM install --production	--omit=optional --no-optional  --legacy-peer-deps
 
   cd "$APP_SOURCE_DIR"	
 fi	
