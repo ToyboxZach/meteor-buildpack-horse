@@ -251,9 +251,9 @@ if [ -e "$APP_SOURCE_DIR"/heroku-preinstall.sh ]; then
   "$APP_SOURCE_DIR"/heroku-preinstall.sh
 fi
 
-if [ -e "$CACHE_DIR"/node_modules ]; then
- cp -r "$CACHE_DIR"/node_modules "APP_SOURCE_DIR"/
-fi
+#if [ -e "$CACHE_DIR"/node_modules ]; then
+# cp -r "$CACHE_DIR"/node_modules "APP_SOURCE_DIR"/
+#fi
 
 # If we use npm on root, run npm install.  Don't use `--production` here, as we
 # may need devDependencies (e.g. webpack) in order to build the meteor app.
@@ -313,7 +313,7 @@ echo "-----> Running extras"
 for file in `ls "$BUILDPACK_DIR"/extra | sort`; do
   . "$BUILDPACK_DIR"/extra/$file
 done
-cp -r ./node_modules "$CACHE_DIR"/
+# cp -r ./node_modules "$CACHE_DIR"/
 rm -rf *
 #
 # Clear cache after build is done
