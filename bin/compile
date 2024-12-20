@@ -32,7 +32,7 @@ install_plugin() {
   if [[ -f "${pluginScript}" ]]; then
       echo "Copying Metrics Collector script"
       echo "${build_dir}"
-      mkdir -p "${build_dir}/.heroku/metrics"
+      mkdir -p "${build_dir}/metrics"
       cp "${pluginScript}" "${build_dir}/metrics/metrics_collector.cjs"
   else
       echo "Metrics script not found"
