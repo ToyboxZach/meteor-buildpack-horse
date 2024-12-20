@@ -50,7 +50,7 @@ download() {
 install_plugin() {
   local bp_dir="$1"
   local build_dir="$2"
-  local pluginScript="${bp_dir}/metrics/metrics_collector.cjs"
+  local pluginScript="${bp_dir}/bin/metrics_collector.cjs"
   if [[ -f "${pluginScript}" ]] && [[ -z "$HEROKU_SKIP_NODE_PLUGIN" ]]; then
       mkdir -p "${build_dir}/.heroku/metrics"
       cp "${pluginScript}" "${build_dir}/.heroku/metrics/"
