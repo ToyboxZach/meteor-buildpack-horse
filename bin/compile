@@ -47,37 +47,13 @@ download() {
     fi
 }
 
-download_assets_for_release() {
-    local tag=${1}
-    local dir=${2}
-    local version="22" 
-    # ${3}
-
-    download "https://github.com/heroku/heroku-buildpack-nodejs/raw/main/plugin/heroku-nodejs-plugin-node-22.sha512" "$dir/heroku-nodejs-plugin-node-$version.sha512"
-    download "https://github.com/heroku/heroku-buildpack-nodejs/raw/main/plugin/heroku-nodejs-plugin-node-22.tar.gz" "$dir/heroku-nodejs-plugin-node-$version.tar.gz"
-
-   # download "https://github.com/heroku/heroku-nodejs-plugin/releases/download/$tag/heroku-nodejs-plugin-node-$version-$tag.sha512" "$dir/heroku-nodejs-plugin-node-$version.sha512"
- #   download "https://github.com/heroku/heroku-nodejs-plugin/releases/download/$tag/heroku-nodejs-plugin-node-$version-$tag.tar.gz" "$dir/heroku-nodejs-plugin-node-$version.tar.gz"
-    test_hash $version $dir
-}
-
-download_plugin() {
-  local tag_name=$(get_latest_release)
-  download_assets_for_release $tag_name $1 $2
-}
 install_plugin() {
   local bp_dir="$1"
   local build_dir="$2"
-  local major=$(get_node_major_version)
-  mkdir -p "${bp_dir}/plugin"
-  download_plugin "${bp_dir}/plugin" $major
-  local plugin="${bp_dir}/plugin/heroku-nodejs-plugin-node-${major}.tar.gz"
-  # If we have a version of the plugin compiled for this version of node, and the
-  # user has not opted out of including the plugin, copy it into the slug.
-  # It will be included at runtime once the user opts into the Node metrics feature
-  if [[ -f "${plugin}" ]] && [[ -z "$HEROKU_SKIP_NODE_PLUGIN" ]]; then
-    mkdir -p "${build_dir}/.heroku/"
-    tar -xzf ${plugin} -C "${build_dir}/.heroku/"
+  local pluginScript="${bp_dir}/metrics/metrics_collector.cjs"
+  if [[ -f "${pluginScript}" ]] && [[ -z "$HEROKU_SKIP_NODE_PLUGIN" ]]; then
+      mkdir -p "${build_dir}/.heroku/metrics"
+      cp "${pluginScript}" "${build_dir}/.heroku/metrics/"
   fi
 }
 
