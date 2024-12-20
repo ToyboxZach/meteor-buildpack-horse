@@ -10,7 +10,7 @@ if [[ -n "$HEROKU_METRICS_URL" ]] && [[ "${DYNO}" != run\.* ]] && [[ -z "$HEROKU
   if [[ -z "$NODEJS_PARAMS" ]]; then
       export NODEJS_PARAMS="--require $compile_dir/.heroku/metrics/metrics_collector.cjs"
   else
-      export NODEJS_PARAMS="${NODEJS_PARAMS} --require $compile_dir/.heroku/metrics/metrics_collector.cjs"
+      export NODEJS_PARAMS="${NODEJS_PARAMS} --require $compile_dir/.meteor/heroku_build/metrics/metrics_collector.cjs"
   fi
 
 fi
