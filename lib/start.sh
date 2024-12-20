@@ -8,9 +8,9 @@ if [[ -n "$HEROKU_METRICS_URL" ]] && [[ "${DYNO}" != run\.* ]] && [[ -z "$HEROKU
 
   # Don't clobber NODE_OPTIONS if the user has set it, just add the require flag to the end
   if [[ -z "$NODEJS_PARAMS" ]]; then
-      export NODEJS_PARAMS="--require $HOME/.meteor/heroku_build/.heroku/heroku-nodejs-plugin"
+      export NODEJS_PARAMS="--require $compile_dir/.heroku/metrics/metrics_collector.cjs"
   else
-      export NODEJS_PARAMS="${NODEJS_PARAMS} --require $HOME/.meteor/heroku_build/.heroku/heroku-nodejs-plugin"
+      export NODEJS_PARAMS="${NODEJS_PARAMS} --require $compile_dir/.heroku/metrics/metrics_collector.cjs"
   fi
 
 fi
