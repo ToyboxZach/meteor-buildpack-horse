@@ -151,6 +151,7 @@ function METEOR {
 # run with the context of the target release (project .meteor/release) rather
 # than the "latest" that is installed by install.meteor.com.
 cd "$APP_SOURCE_DIR"
+METEOR update --npm
 
 echo "-----> Target Meteor version: `METEOR --version`"
 
@@ -219,7 +220,8 @@ fi
 echo "Installing npm packages"
 if [ -e "$APP_SOURCE_DIR"/package.json ]; then
   echo "---> install   --legacy-peer-deps"
-  $METEOR_NPM install  --production --legacy-peer-deps
+  METEOR update --npm
+  NPM_CONFIG_PRODUCTION=false $METEOR_NPM install --legacy-peer-deps
 fi
 
 
